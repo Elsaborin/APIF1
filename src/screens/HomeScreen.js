@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
-import { fetchDrivers, fetchTeamsFromDrivers } from '../api/openf1';
+import { fetchDrivers, fetchTeams, fetchTeamsFromDrivers } from '../api/openf1';
 
 export default function HomeScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
@@ -22,16 +22,28 @@ export default function HomeScreen({ navigation }) {
   const loadApiData = async () => {
     try {
       setLoading(true);
-      const apiDrivers = await fetchDrivers('latest');
+      const [apiDrivers, apiTeams] = await Promise.all([
+        fetchDrivers('latest'),
+        fetchTeams('latest'),
+      ]);
+
       if (apiDrivers && apiDrivers.length > 0) {
         const top3Drivers = apiDrivers.slice(0, 3).map((d, index) => ({
           ...d,
           pos: index + 1,
         }));
         setTopDrivers(top3Drivers);
+      }
 
-        const computedTeams = fetchTeamsFromDrivers(apiDrivers);
-        setTopTeams(computedTeams.slice(0, 3));
+      if (apiTeams && apiTeams.length > 0) {
+        const top3Teams = apiTeams.slice(0, 3).map((t, index) => ({
+          ...t,
+          pos: index + 1,
+        }));
+        setTopTeams(top3Teams);
+      } else if (apiDrivers && apiDrivers.length > 0) {
+        const fallbackTeams = fetchTeamsFromDrivers(apiDrivers);
+        setTopTeams(fallbackTeams.slice(0, 3));
       }
     } catch (error) {
       console.warn('Error fetching OpenF1 data for Home:', error.message);
@@ -249,7 +261,7 @@ const styles = StyleSheet.create({
     height: 65,
     borderRadius: 12,
     backgroundColor: COLORS.surface,
-    justifyContent: 'center',
+    justify.content: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,
