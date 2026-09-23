@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,20 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FavoritesContext } from '../context/FavoritesContext';
-import { INITIAL_DRIVERS, INITIAL_TEAMS } from './StandingsScreen';
+import { fetchDrivers, fetchTeamsFromDrivers } from '../api/openf1';
 
 export default function FavoritesScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('pilotos');
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [driversList, setDriversList] = useState([]);
+  const [teamsList, setTeamsList] = useState([]);
   
   const {
     toggleFavoriteDriver,
@@ -25,18 +29,35 @@ export default function FavoritesScreen({ navigation }) {
     isFavoriteTeam,
   } = useContext(FavoritesContext);
 
-  const filteredDrivers = INITIAL_DRIVERS.filter((d) => {
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchDrivers('latest');
+      setDriversList(data);
+      setTeamsList(fetchTeamsFromDrivers(data));
+    } catch (e) {
+      // Graceful fallback
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredDrivers = driversList.filter((d) => {
     const matchesSearch =
-      d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.team.toLowerCase().includes(searchQuery.toLowerCase());
+      (d.name && d.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (d.full_name && d.full_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (d.team && d.team.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesSearch;
   });
 
-  const filteredTeams = INITIAL_TEAMS.filter((t) => {
+  const filteredTeams = teamsList.filter((t) => {
     const matchesSearch =
-      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.country.toLowerCase().includes(searchQuery.toLowerCase());
+      (t.name && t.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (t.country && t.country.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesSearch;
   });
 
@@ -51,7 +72,11 @@ export default function FavoritesScreen({ navigation }) {
       >
         <View style={styles.cardLeft}>
           <View style={styles.iconPlaceholder}>
-            <MaterialCommunityIcons name="account" size={28} color={COLORS.textSecondary} />
+            {item.headshot_url ? (
+              <Image source={{ uri: item.headshot_url }} style={styles.avatarImage} resizeMode="contain" />
+            ) : (
+              <MaterialCommunityIcons name="account" size={28} color={COLORS.textSecondary} />
+            )}
           </View>
           <View style={styles.cardInfo}>
             <Text style={styles.cardTitle}>{item.full_name || item.name}</Text>
@@ -162,7 +187,11 @@ export default function FavoritesScreen({ navigation }) {
       <Text style={styles.sectionSubtitle}>Mis Favoritos</Text>
 
       {/* List */}
-      {activeTab === 'pilotos' ? (
+      {loading ? (
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : activeTab === 'pilotos' ? (
         <FlatList
           data={filteredDrivers}
           keyExtractor={(item) => String(item.id)}
@@ -286,13 +315,18 @@ const styles = StyleSheet.create({
   iconPlaceholder: {
     width: 48,
     height: 48,
-    borderRadius: 12,
+    borderRadius: 24,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   cardInfo: {
     flex: 1,
@@ -319,5 +353,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
     fontSize: 14,
+  },
+  loaderBox: {
+    padding: 40,
+    alignItems: 'center',
   },
 });

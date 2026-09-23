@@ -12,42 +12,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { fetchDrivers } from '../api/openf1';
-
-export const INITIAL_DRIVERS = [
-  { id: '1', pos: 1, name: 'Max Verstappen', full_name: 'Max Verstappen', team: 'Red Bull Racing', country: 'Países Bajos', country_code: 'NED', time: '1:34:23.754', points: 437, wins: 19, podiums: 21, titles: 3, number: 1, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/2col/image.png' },
-  { id: '4', pos: 2, name: 'Lando Norris', full_name: 'Lando Norris', team: 'McLaren', country: 'Reino Unido', country_code: 'GBR', time: '+4.351s', points: 374, wins: 3, podiums: 12, titles: 0, number: 4, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/2col/image.png' },
-  { id: '16', pos: 3, name: 'Charles Leclerc', full_name: 'Charles Leclerc', team: 'Ferrari', country: 'Mónaco', country_code: 'MON', time: '+5.089s', points: 356, wins: 3, podiums: 11, titles: 0, number: 16, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/2col/image.png' },
-  { id: '63', pos: 4, name: 'George Russell', full_name: 'George Russell', team: 'Mercedes', country: 'Reino Unido', country_code: 'GBR', time: '+29.116s', points: 298, wins: 2, podiums: 8, titles: 0, number: 63, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png.transform/2col/image.png' },
-  { id: '12', pos: 5, name: 'K. Antonelli', full_name: 'Andrea Kimi Antonelli', team: 'Mercedes', country: 'Italia', country_code: 'ITA', time: '+29.829s', points: 245, wins: 1, podiums: 2, titles: 0, number: 12, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KIMANT01_Kimi_Antonelli/kimant01.png.transform/2col/image.png' },
-  { id: '14', pos: 6, name: 'Fernando Alonso', full_name: 'Fernando Alonso', team: 'Aston Martin', country: 'España', country_code: 'ESP', time: '+45.112s', points: 190, wins: 32, podiums: 106, titles: 2, number: 14, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/2col/image.png' },
-  { id: '55', pos: 7, name: 'Carlos Sainz', full_name: 'Carlos Sainz', team: 'Williams', country: 'España', country_code: 'ESP', time: '+50.500s', points: 175, wins: 4, podiums: 25, titles: 0, number: 55, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/2col/image.png' },
-  { id: '43', pos: 8, name: 'Franco Colapinto', full_name: 'Franco Colapinto', team: 'McLaren', country: 'Argentina', country_code: 'ARG', time: '+64.281s', points: 110, wins: 0, podiums: 1, titles: 0, number: 43, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png.transform/2col/image.png' },
-  { id: '11', pos: 9, name: 'Sergio Perez', full_name: 'Sergio Perez', team: 'Cadillac', country: 'México', country_code: 'MEX', time: '+75.300s', points: 95, wins: 6, podiums: 39, titles: 0, number: 11, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png' },
-  { id: '30', pos: 10, name: 'Liam Lawson', full_name: 'Liam Lawson', team: 'Red Bull Racing', country: 'Nueva Zelanda', country_code: 'NZL', time: '+86.746s', points: 80, wins: 0, podiums: 1, titles: 0, number: 30, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/2col/image.png' },
-];
-
-export const INITIAL_TEAMS = [
-  { id: 'team-mercedes', pos: 1, name: 'Mercedes', country: 'Alemania', location: 'Brackley, United Kingdom', points: 503, wins: 8, podiums: 15, titles: 8 },
-  { id: 'team-ferrari', pos: 2, name: 'Ferrari', country: 'Italia', location: 'Maranello, Italy', points: 358, wins: 5, podiums: 12, titles: 16 },
-  { id: 'team-mclaren', pos: 3, name: 'McLaren', country: 'Reino Unido', location: 'Woking, United Kingdom', points: 306, wins: 4, podiums: 11, titles: 8 },
-  { id: 'team-redbull', pos: 4, name: 'Red Bull Racing', country: 'Austria', location: 'Milton Keynes, United Kingdom', points: 290, wins: 7, podiums: 14, titles: 6 },
-  { id: 'team-rb', pos: 5, name: 'Racing Bulls', country: 'Italia', location: 'Faenza, Italy', points: 120, wins: 0, podiums: 2, titles: 0 },
-  { id: 'team-alpine', pos: 6, name: 'Alpine', country: 'Francia', location: 'Enstone, United Kingdom', points: 85, wins: 0, podiums: 1, titles: 2 },
-  { id: 'team-aston', pos: 7, name: 'Aston Martin', country: 'Reino Unido', location: 'Silverstone, United Kingdom', points: 62, wins: 0, podiums: 1, titles: 0 },
-  { id: 'team-haas', pos: 8, name: 'Haas', country: 'Estados Unidos', location: 'Kannapolis, United States', points: 44, wins: 0, podiums: 0, titles: 0 },
-  { id: 'team-williams', pos: 9, name: 'Williams', country: 'Reino Unido', location: 'Grove, United Kingdom', points: 38, wins: 0, podiums: 0, titles: 9 },
-  { id: 'team-sauber', pos: 10, name: 'Sauber', country: 'Suiza', location: 'Hinwil, Switzerland', points: 16, wins: 0, podiums: 0, titles: 0 },
-];
+import { fetchDrivers, fetchTeamsFromDrivers } from '../api/openf1';
 
 export default function StandingsScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('pilotos');
   const [selectedCountry, setSelectedCountry] = useState('Todos los Países');
   const [selectedYear, setSelectedYear] = useState('2026');
   
-  const [loading, setLoading] = useState(false);
-  const [driversList, setDriversList] = useState(INITIAL_DRIVERS);
-  const [teamsList] = useState(INITIAL_TEAMS);
+  const [loading, setLoading] = useState(true);
+  const [driversList, setDriversList] = useState([]);
+  const [teamsList, setTeamsList] = useState([]);
 
   const [countryModalVisible, setCountryModalVisible] = useState(false);
   const [yearModalVisible, setYearModalVisible] = useState(false);
@@ -61,29 +35,25 @@ export default function StandingsScreen({ navigation }) {
       setLoading(true);
       const apiDrivers = await fetchDrivers('latest');
       if (apiDrivers && apiDrivers.length > 0) {
-        // Merge OpenF1 drivers with fallback data if missing items
-        const mergedMap = new Map();
-        INITIAL_DRIVERS.forEach(d => mergedMap.set(d.id, d));
-        apiDrivers.forEach(d => {
-          const existing = mergedMap.get(d.id);
-          mergedMap.set(d.id, {
-            ...existing,
-            ...d,
-            headshot_url: d.headshot_url || existing?.headshot_url || null,
-          });
-        });
-
-        const listArray = Array.from(mergedMap.values());
-        const sorted = listArray.sort((a, b) => b.points - a.points);
-        const mapped = sorted.map((d, idx) => ({
+        // Position ranking 1..22
+        const mapped = apiDrivers.map((d, idx) => ({
           ...d,
           pos: idx + 1,
-          time: d.time || `+${(idx * 3.421 + 2.1).toFixed(3)}s`,
+          time: d.time || `+${(idx * 3.421 + 1.254).toFixed(3)}s`,
         }));
-        setDriversList(mapped);
+        
+        // Year modifier simulation if year changed
+        const yearMultiplier = selectedYear === '2025' ? 0.95 : selectedYear === '2024' ? 0.88 : 1.0;
+        const yearAdjusted = mapped.map(d => ({
+          ...d,
+          points: Math.round(d.points * yearMultiplier),
+        }));
+
+        setDriversList(yearAdjusted);
+        setTeamsList(fetchTeamsFromDrivers(yearAdjusted));
       }
     } catch (err) {
-      // Keep initial drivers list
+      console.warn('Error loading drivers from OpenF1 API:', err.message);
     } finally {
       setLoading(false);
     }
@@ -100,7 +70,14 @@ export default function StandingsScreen({ navigation }) {
     'México',
     'Francia',
     'Alemania',
+    'Brasil',
     'Estados Unidos',
+    'Canadá',
+    'Japón',
+    'Australia',
+    'Nueva Zelanda',
+    'Finlandia',
+    'Tailandia',
   ];
 
   const yearsList = ['2026', '2025', '2024'];
@@ -140,8 +117,8 @@ export default function StandingsScreen({ navigation }) {
     if (t === 'alemania') {
       return c.includes('alemania') || c.includes('germany') || code === 'ger' || code === 'de';
     }
-    if (t === 'estados unidos') {
-      return c.includes('estados unidos') || c.includes('usa') || code === 'usa' || code === 'us';
+    if (t === 'brasil') {
+      return c.includes('brasil') || c.includes('brazil') || code === 'bra' || code === 'br';
     }
 
     return c.includes(t) || code.includes(t);

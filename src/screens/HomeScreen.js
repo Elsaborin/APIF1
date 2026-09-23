@@ -11,40 +11,30 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
-import { fetchDrivers } from '../api/openf1';
-
-const DEFAULT_TOP_TEAMS = [
-  { id: 'team-mercedes', pos: 1, name: 'Mercedes', points: 503, country: 'Alemania', titles: 8 },
-  { id: 'team-ferrari', pos: 2, name: 'Ferrari', points: 358, country: 'Italia', titles: 16 },
-  { id: 'team-mclaren', pos: 3, name: 'McLaren', points: 306, country: 'Reino Unido', titles: 8 },
-];
-
-const DEFAULT_TOP_DRIVERS = [
-  { id: '1', pos: 1, name: 'Max Verstappen', team: 'Red Bull Racing', points: 437, country: 'Países Bajos', wins: 19, podiums: 21, titles: 3, number: 1 },
-  { id: '4', pos: 2, name: 'Lando Norris', team: 'McLaren', points: 374, country: 'Reino Unido', wins: 3, podiums: 12, titles: 0, number: 4 },
-  { id: '16', pos: 3, name: 'Charles Leclerc', team: 'Ferrari', points: 356, country: 'Mónaco', wins: 3, podiums: 11, titles: 0, number: 16 },
-];
+import { fetchDrivers, fetchTeamsFromDrivers } from '../api/openf1';
 
 export default function HomeScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [topDrivers, setTopDrivers] = useState(DEFAULT_TOP_DRIVERS);
-  const [topTeams] = useState(DEFAULT_TOP_TEAMS);
+  const [topDrivers, setTopDrivers] = useState([]);
+  const [topTeams, setTopTeams] = useState([]);
 
   const loadApiData = async () => {
     try {
       setLoading(true);
       const apiDrivers = await fetchDrivers('latest');
       if (apiDrivers && apiDrivers.length > 0) {
-        const sorted = [...apiDrivers].sort((a, b) => b.points - a.points).slice(0, 3);
-        const mapped = sorted.map((d, index) => ({
+        const top3Drivers = apiDrivers.slice(0, 3).map((d, index) => ({
           ...d,
           pos: index + 1,
         }));
-        setTopDrivers(mapped);
+        setTopDrivers(top3Drivers);
+
+        const computedTeams = fetchTeamsFromDrivers(apiDrivers);
+        setTopTeams(computedTeams.slice(0, 3));
       }
     } catch (error) {
-      // Fallback to default top drivers
+      console.warn('Error fetching OpenF1 data for Home:', error.message);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -116,23 +106,29 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.seasonBadge}>Temporada 2026</Text>
         </View>
 
-        <View style={styles.listContainer}>
-          {topTeams.map((team) => (
-            <TouchableOpacity
-              key={team.id}
-              style={styles.listItem}
-              onPress={() => navigation.navigate('Detail', { item: team, type: 'team' })}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.posText}>{team.pos}</Text>
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{team.name}</Text>
-                <Text style={styles.itemSub}>{team.country}</Text>
-              </View>
-              <Text style={styles.ptsText}>{team.points} pts</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {loading ? (
+          <View style={styles.loaderBox}>
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          </View>
+        ) : (
+          <View style={styles.listContainer}>
+            {topTeams.map((team) => (
+              <TouchableOpacity
+                key={team.id}
+                style={styles.listItem}
+                onPress={() => navigation.navigate('Detail', { item: team, type: 'team' })}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.posText}>{team.pos}</Text>
+                <View style={styles.itemInfo}>
+                  <Text style={styles.itemName}>{team.name}</Text>
+                  <Text style={styles.itemSub}>{team.country}</Text>
+                </View>
+                <Text style={styles.ptsText}>{team.points} pts</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* TOP Pilotos Section */}
         <View style={styles.sectionHeader}>

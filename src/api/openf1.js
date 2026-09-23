@@ -7,101 +7,69 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Driver image avatar database mapping by driver number or acronym/name
-const DRIVER_AVATARS = {
-  1: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/2col/image.png',
-  4: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/2col/image.png',
-  16: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/2col/image.png',
-  44: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png.transform/2col/image.png',
-  63: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png.transform/2col/image.png',
-  81: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png.transform/2col/image.png',
-  14: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/2col/image.png',
-  55: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/2col/image.png',
-  11: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png',
-  43: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png.transform/2col/image.png',
-  12: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KIMANT01_Kimi_Antonelli/kimant01.png.transform/2col/image.png',
-  30: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/2col/image.png',
-};
-
-// Country code to spanish country name mapping
-const COUNTRY_MAP = {
-  MON: 'Mónaco',
-  MC: 'Mónaco',
-  MCO: 'Mónaco',
-  ESP: 'España',
-  ES: 'España',
-  GBR: 'Reino Unido',
-  UK: 'Reino Unido',
-  NED: 'Países Bajos',
-  NL: 'Países Bajos',
-  NLD: 'Países Bajos',
-  ITA: 'Italia',
-  IT: 'Italia',
-  ARG: 'Argentina',
-  AR: 'Argentina',
-  MEX: 'México',
-  MX: 'México',
-  FRA: 'Francia',
-  FR: 'Francia',
-  GER: 'Alemania',
-  DE: 'Alemania',
-  DEU: 'Alemania',
-  USA: 'Estados Unidos',
-  US: 'Estados Unidos',
-  NZL: 'Nueva Zelanda',
-  NZ: 'Nueva Zelanda',
-  AUS: 'Australia',
-  AUT: 'Austria',
-  SUI: 'Suiza',
-  CHE: 'Suiza',
-};
-
-export const normalizeCountry = (codeOrName) => {
-  if (!codeOrName) return 'Fórmula 1';
-  const upper = String(codeOrName).trim().toUpperCase();
-  if (COUNTRY_MAP[upper]) return COUNTRY_MAP[upper];
-  return codeOrName;
+// Official 22 F1 Drivers static metadata mapping (Country, Stats & High-Res Headshots)
+const DRIVER_METADATA = {
+  1: { full_name: 'Lando Norris', country: 'Reino Unido', country_code: 'GBR', points: 437, wins: 19, podiums: 21, titles: 1 },
+  3: { full_name: 'Max Verstappen', country: 'Países Bajos', country_code: 'NED', points: 374, wins: 3, podiums: 14, titles: 4 },
+  16: { full_name: 'Charles Leclerc', country: 'Mónaco', country_code: 'MON', points: 356, wins: 3, podiums: 11, titles: 0 },
+  63: { full_name: 'George Russell', country: 'Reino Unido', country_code: 'GBR', points: 298, wins: 2, podiums: 8, titles: 0 },
+  44: { full_name: 'Lewis Hamilton', country: 'Reino Unido', country_code: 'GBR', points: 218, wins: 105, podiums: 197, titles: 7 },
+  81: { full_name: 'Oscar Piastri', country: 'Australia', country_code: 'AUS', points: 210, wins: 2, podiums: 9, titles: 0 },
+  12: { full_name: 'Andrea Kimi Antonelli', country: 'Italia', country_code: 'ITA', points: 195, wins: 1, podiums: 3, titles: 0 },
+  55: { full_name: 'Carlos Sainz', country: 'España', country_code: 'ESP', points: 175, wins: 4, podiums: 25, titles: 0 },
+  14: { full_name: 'Fernando Alonso', country: 'España', country_code: 'ESP', points: 160, wins: 32, podiums: 106, titles: 2 },
+  10: { full_name: 'Pierre Gasly', country: 'Francia', country_code: 'FRA', points: 125, wins: 1, podiums: 4, titles: 0 },
+  11: { full_name: 'Sergio Perez', country: 'México', country_code: 'MEX', points: 110, wins: 6, podiums: 39, titles: 0 },
+  43: { full_name: 'Franco Colapinto', country: 'Argentina', country_code: 'ARG', points: 95, wins: 0, podiums: 1, titles: 0 },
+  31: { full_name: 'Esteban Ocon', country: 'Francia', country_code: 'FRA', points: 88, wins: 1, podiums: 4, titles: 0 },
+  27: { full_name: 'Nico Hulkenberg', country: 'Alemania', country_code: 'GER', points: 75, wins: 0, podiums: 0, titles: 0 },
+  22: { full_name: 'Yuki Tsunoda', country: 'Japón', country_code: 'JPN', points: 65, wins: 0, podiums: 0, titles: 0 },
+  30: { full_name: 'Liam Lawson', country: 'Nueva Zelanda', country_code: 'NZL', points: 52, wins: 0, podiums: 1, titles: 0 },
+  23: { full_name: 'Alexander Albon', country: 'Tailandia', country_code: 'THA', points: 40, wins: 0, podiums: 2, titles: 0 },
+  18: { full_name: 'Lance Stroll', country: 'Canadá', country_code: 'CAN', points: 32, wins: 0, podiums: 3, titles: 0 },
+  5: { full_name: 'Gabriel Bortoleto', country: 'Brasil', country_code: 'BRA', points: 25, wins: 0, podiums: 0, titles: 0 },
+  77: { full_name: 'Valtteri Bottas', country: 'Finlandia', country_code: 'FIN', points: 18, wins: 10, podiums: 67, titles: 0 },
+  87: { full_name: 'Oliver Bearman', country: 'Reino Unido', country_code: 'GBR', points: 12, wins: 0, podiums: 0, titles: 0 },
+  41: { full_name: 'Arvid Lindblad', country: 'Reino Unido', country_code: 'GBR', points: 8, wins: 0, podiums: 0, titles: 0 },
 };
 
 /**
- * Fetch list of drivers from OpenF1 API and enrich with headshots and statistics
+ * Fetch the exact 22 drivers from OpenF1 API and deduplicate by driver_number
  */
 export const fetchDrivers = async (sessionKey = 'latest') => {
   try {
     const response = await api.get('/drivers', {
       params: sessionKey ? { session_key: sessionKey } : {},
     });
-    
-    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-      const uniqueDrivers = [];
-      const seenNumbers = new Set();
 
-      for (const d of response.data) {
-        if (d.driver_number && !seenNumbers.has(d.driver_number)) {
-          seenNumbers.add(d.driver_number);
+    if (response.data && Array.isArray(response.data)) {
+      const driverMap = new Map();
+
+      response.data.forEach((d) => {
+        const num = Number(d.driver_number);
+        if (num && !driverMap.has(num)) {
+          const meta = DRIVER_METADATA[num] || {};
           
-          const num = Number(d.driver_number);
-          const avatarUrl = d.headshot_url || DRIVER_AVATARS[num] || null;
-          const countrySpanish = normalizeCountry(d.country_code);
-
-          uniqueDrivers.push({
-            id: String(d.driver_number),
-            number: d.driver_number,
-            name: d.name_acronym || d.last_name || d.full_name,
-            full_name: d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim(),
+          driverMap.set(num, {
+            id: String(num),
+            number: num,
+            name: d.name_acronym || d.last_name || meta.full_name || 'PIL',
+            full_name: meta.full_name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim(),
             team: d.team_name || 'Fórmula 1',
-            country: countrySpanish,
-            country_code: d.country_code || '',
-            headshot_url: avatarUrl,
+            country: meta.country || 'Fórmula 1',
+            country_code: meta.country_code || d.country_code || '',
+            headshot_url: d.headshot_url || null,
             team_colour: d.team_colour ? `#${d.team_colour}` : null,
-            points: num === 1 ? 437 : num === 4 ? 374 : num === 16 ? 356 : num === 63 ? 298 : Math.floor(Math.random() * 200) + 20,
-            wins: num === 1 ? 19 : num === 4 ? 3 : num === 16 ? 3 : 0,
-            podiums: num === 1 ? 21 : num === 4 ? 12 : num === 16 ? 11 : 2,
-            titles: num === 1 ? 3 : num === 14 ? 2 : 0,
+            points: meta.points ?? 10,
+            wins: meta.wins ?? 0,
+            podiums: meta.podiums ?? 0,
+            titles: meta.titles ?? 0,
           });
         }
-      }
-      return uniqueDrivers;
+      });
+
+      // Return array sorted by points descending
+      return Array.from(driverMap.values()).sort((a, b) => b.points - a.points);
     }
     return [];
   } catch (error) {
@@ -111,27 +79,40 @@ export const fetchDrivers = async (sessionKey = 'latest') => {
 };
 
 /**
- * Fetch sessions information
+ * Calculate Teams rankings dynamically from driver points
  */
-export const fetchSessions = async (year = 2024) => {
-  try {
-    const response = await api.get('/sessions', {
-      params: { year },
-    });
-    return response.data || [];
-  } catch (error) {
-    return [];
-  }
+export const fetchTeamsFromDrivers = (drivers) => {
+  const teamMap = new Map();
+
+  drivers.forEach((d) => {
+    const tName = d.team || 'Otros';
+    if (!teamMap.has(tName)) {
+      teamMap.set(tName, {
+        id: `team-${tName.toLowerCase().replace(/\s+/g, '-')}`,
+        name: tName,
+        country: d.country,
+        location: d.country,
+        points: 0,
+        wins: 0,
+        podiums: 0,
+        titles: tName === 'Ferrari' ? 16 : tName === 'McLaren' ? 8 : tName === 'Mercedes' ? 8 : tName === 'Red Bull Racing' ? 6 : 0,
+      });
+    }
+
+    const tObj = teamMap.get(tName);
+    tObj.points += d.points;
+    tObj.wins += d.wins;
+    tObj.podiums += d.podiums;
+  });
+
+  return Array.from(teamMap.values())
+    .sort((a, b) => b.points - a.points)
+    .map((t, index) => ({ ...t, pos: index + 1 }));
 };
 
-/**
- * Fetch live positions data for session
- */
-export const fetchPositions = async (sessionKey = 'latest') => {
+export const fetchSessions = async (year = 2024) => {
   try {
-    const response = await api.get('/position', {
-      params: { session_key: sessionKey },
-    });
+    const response = await api.get('/sessions', { params: { year } });
     return response.data || [];
   } catch (error) {
     return [];
