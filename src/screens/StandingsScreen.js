@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { fetchDrivers, fetchTeamsFromDrivers } from '../api/openf1';
+import { fetchDrivers, fetchTeams } from '../api/openf1';
 
 export default function StandingsScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('pilotos');
@@ -27,33 +27,26 @@ export default function StandingsScreen({ navigation }) {
   const [yearModalVisible, setYearModalVisible] = useState(false);
 
   useEffect(() => {
-    loadDriversFromApi();
+    loadDataFromOpenF1();
   }, [selectedYear]);
 
-  const loadDriversFromApi = async () => {
+  const loadDataFromOpenF1 = async () => {
     try {
       setLoading(true);
-      const apiDrivers = await fetchDrivers('latest');
-      if (apiDrivers && apiDrivers.length > 0) {
-        // Position ranking 1..22
-        const mapped = apiDrivers.map((d, idx) => ({
-          ...d,
-          pos: idx + 1,
-          time: d.time || `+${(idx * 3.421 + 1.254).toFixed(3)}s`,
-        }));
-        
-        // Year modifier simulation if year changed
-        const yearMultiplier = selectedYear === '2025' ? 0.95 : selectedYear === '2024' ? 0.88 : 1.0;
-        const yearAdjusted = mapped.map(d => ({
-          ...d,
-          points: Math.round(d.points * yearMultiplier),
-        }));
+      const [apiDrivers, apiTeams] = await Promise.all([
+        fetchDrivers('latest'),
+        fetchTeams('latest'),
+      ]);
 
-        setDriversList(yearAdjusted);
-        setTeamsList(fetchTeamsFromDrivers(yearAdjusted));
-      }
+      const mappedDrivers = apiDrivers.map((d, idx) => ({
+        ...d,
+        time: d.time || `+${(idx * 2.815 + 1.254).toFixed(3)}s`,
+      }));
+
+      setDriversList(mappedDrivers);
+      setTeamsList(apiTeams);
     } catch (err) {
-      console.warn('Error loading drivers from OpenF1 API:', err.message);
+      console.warn('Error loading OpenF1 API standings:', err.message);
     } finally {
       setLoading(false);
     }
@@ -71,13 +64,6 @@ export default function StandingsScreen({ navigation }) {
     'Francia',
     'Alemania',
     'Brasil',
-    'Estados Unidos',
-    'Canadá',
-    'Japón',
-    'Australia',
-    'Nueva Zelanda',
-    'Finlandia',
-    'Tailandia',
   ];
 
   const yearsList = ['2026', '2025', '2024'];
@@ -116,9 +102,6 @@ export default function StandingsScreen({ navigation }) {
     }
     if (t === 'alemania') {
       return c.includes('alemania') || c.includes('germany') || code === 'ger' || code === 'de';
-    }
-    if (t === 'brasil') {
-      return c.includes('brasil') || c.includes('brazil') || code === 'bra' || code === 'br';
     }
 
     return c.includes(t) || code.includes(t);

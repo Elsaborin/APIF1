@@ -94,64 +94,43 @@ export default function DetailScreen({ route, navigation }) {
           )}
 
           {/* Section Subtitle */}
-          <Text style={styles.statsSectionTitle}>Estadísticas Temporada 2026</Text>
+          <Text style={styles.statsSectionTitle}>Métricas Campeonato OpenF1 API</Text>
 
-          {/* Grid Cards */}
-          {isDriver ? (
-            <View style={styles.gridContainer}>
-              <View style={styles.gridRow}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardLabel}>VICTORIAS</Text>
-                  <Text style={styles.statCardValue}>{item.wins ?? 0}</Text>
-                </View>
-
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardLabel}>PODIOS</Text>
-                  <Text style={styles.statCardValue}>{item.podiums ?? 0}</Text>
-                </View>
+          {/* Grid Cards - 100% Real OpenF1 API Fields */}
+          <View style={styles.gridContainer}>
+            <View style={styles.gridRow}>
+              <View style={styles.statCard}>
+                <Text style={styles.statCardLabel}>PUNTOS ACTUALES</Text>
+                <Text style={styles.statCardValue}>{item.points ?? 0}</Text>
               </View>
 
-              <View style={styles.gridRow}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardLabel}>PUNTOS</Text>
-                  <Text style={styles.statCardValue}>{item.points ?? 0}</Text>
-                </View>
-
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardLabel}>POSICIÓN</Text>
-                  <Text style={styles.statCardValue}>{item.pos ? `${item.pos}°` : '-'}</Text>
-                </View>
-              </View>
-
-              <View style={[styles.gridRow, { justifyContent: 'center' }]}>
-                <View style={[styles.statCard, { width: '60%' }]}>
-                  <Text style={styles.statCardLabel}>CAMPEONATOS</Text>
-                  <Text style={styles.statCardValue}>{item.titles ?? 0}</Text>
-                </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statCardLabel}>POSICIÓN</Text>
+                <Text style={styles.statCardValue}>{item.pos ? `${item.pos}°` : '-'}</Text>
               </View>
             </View>
-          ) : (
-            <View style={styles.gridContainer}>
-              <View style={styles.gridRow}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardLabel}>PUNTOS</Text>
-                  <Text style={styles.statCardValue}>{item.points ?? 0}</Text>
-                </View>
 
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardLabel}>POSICIÓN</Text>
-                  <Text style={styles.statCardValue}>{item.pos ? `${item.pos}°` : '-'}</Text>
-                </View>
+            <View style={styles.gridRow}>
+              <View style={styles.statCard}>
+                <Text style={styles.statCardLabel}>PUNTOS INICIO</Text>
+                <Text style={styles.statCardValue}>{item.points_start ?? 0}</Text>
               </View>
 
-              <View style={[styles.gridRow, { justifyContent: 'center' }]}>
-                <View style={[styles.statCard, { width: '60%' }]}>
-                  <Text style={styles.statCardLabel}>CAMPEONATOS</Text>
-                  <Text style={styles.statCardValue}>{item.titles ?? 0}</Text>
-                </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statCardLabel}>POSICIÓN INICIO</Text>
+                <Text style={styles.statCardValue}>{item.position_start ? `${item.position_start}°` : '-'}</Text>
               </View>
             </View>
-          )}
+
+            {item.session_key && (
+              <View style={[styles.gridRow, { justifyContent: 'center' }]}>
+                <View style={[styles.statCard, { width: '80%' }]}>
+                  <Text style={styles.statCardLabel}>CÓDIGO SESIÓN OPENF1</Text>
+                  <Text style={[styles.statCardValue, { fontSize: 20 }]}>{item.session_key}</Text>
+                </View>
+              </View>
+            )}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -235,7 +214,7 @@ const styles = StyleSheet.create({
   },
   statsSectionTitle: {
     color: COLORS.textSecondary,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     marginBottom: 20,
     alignSelf: 'flex-start',
@@ -255,21 +234,22 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 16,
     paddingVertical: 18,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,
   },
   statCardLabel: {
     color: COLORS.textSecondary,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
     marginBottom: 6,
+    textAlign: 'center',
   },
   statCardValue: {
     color: COLORS.text,
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '900',
   },
   errorText: {
