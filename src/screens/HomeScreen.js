@@ -1,24 +1,73 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { COLORS } from '../theme/colors';
-import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import { fetchDrivers } from '../api/openf1';
+
+const DEFAULT_TOP_TEAMS = [
+  { id: 'team-mercedes', pos: 1, name: 'Mercedes', points: 503, country: 'Alemania', titles: 8 },
+  { id: 'team-ferrari', pos: 2, name: 'Ferrari', points: 358, country: 'Italia', titles: 16 },
+  { id: 'team-mclaren', pos: 3, name: 'McLaren', points: 306, country: 'Reino Unido', titles: 8 },
+];
+
+const DEFAULT_TOP_DRIVERS = [
+  { id: '1', pos: 1, name: 'Max Verstappen', team: 'Red Bull Racing', points: 437, country: 'Países Bajos', wins: 19, podiums: 21, titles: 3, number: 1 },
+  { id: '4', pos: 2, name: 'Lando Norris', team: 'McLaren', points: 374, country: 'Reino Unido', wins: 3, podiums: 12, titles: 0, number: 4 },
+  { id: '16', pos: 3, name: 'Charles Leclerc', team: 'Ferrari', points: 356, country: 'Mónaco', wins: 3, podiums: 11, titles: 0, number: 16 },
+];
 
 export default function HomeScreen({ navigation }) {
-  // Sample/Initial Top Data from season mockup
-  const topTeams = [
-    { id: 'team-mercedes', pos: 1, name: 'Mercedes', points: 503, country: 'Alemania', titles: 8 },
-    { id: 'team-ferrari', pos: 2, name: 'Ferrari', points: 358, country: 'Italia', titles: 16 },
-    { id: 'team-mclaren', pos: 3, name: 'McLaren', points: 306, country: 'Reino Unido', titles: 8 },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [topDrivers, setTopDrivers] = useState(DEFAULT_TOP_DRIVERS);
+  const [topTeams] = useState(DEFAULT_TOP_TEAMS);
 
-  const topDrivers = [
-    { id: 'driver-1', pos: 1, name: 'Max Verstappen', team: 'Red Bull Racing', points: 437, country: 'Países Bajos', wins: 19, podiums: 21, titles: 3 },
-    { id: 'driver-4', pos: 2, name: 'Lando Norris', team: 'McLaren', points: 374, country: 'Reino Unido', wins: 3, podiums: 12, titles: 0 },
-    { id: 'driver-16', pos: 3, name: 'Charles Leclerc', team: 'Ferrari', points: 356, country: 'Mónaco', wins: 3, podiums: 11, titles: 0 },
-  ];
+  const loadApiData = async () => {
+    try {
+      setLoading(true);
+      const apiDrivers = await fetchDrivers('latest');
+      if (apiDrivers && apiDrivers.length > 0) {
+        // Sort and pick top 3
+        const sorted = [...apiDrivers].sort((a, b) => b.points - a.points).slice(0, 3);
+        const mapped = sorted.map((d, index) => ({
+          ...d,
+          pos: index + 1,
+        }));
+        setTopDrivers(mapped);
+      }
+    } catch (error) {
+      console.log('Using default top drivers fallback');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadApiData();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadApiData();
+  };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+      }
+    >
       {/* Header F1 Branding */}
       <View style={styles.topHeader}>
         <View style={styles.f1BrandBadge}>
@@ -83,23 +132,30 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.seasonBadge}>Temporada 2026</Text>
       </View>
 
-      <View style={styles.listContainer}>
-        {topDrivers.map((driver) => (
-          <TouchableOpacity
-            key={driver.id}
-            style={styles.listItem}
-            onPress={() => navigation.navigate('Detail', { item: driver, type: 'driver' })}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.posText}>{driver.pos}</Text>
-            <View style={styles.itemInfo}>
-              <Text style={styles.itemName}>{driver.name}</Text>
-              <Text style={styles.itemSub}>{driver.team}</Text>
-            </View>
-            <Text style={styles.ptsText}>{driver.points} pts</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {loading ? (
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loaderText}>Cargando datos OpenF1...</Text>
+        </View>
+      ) : (
+        <View style={styles.listContainer}>
+          {topDrivers.map((driver) => (
+            <TouchableOpacity
+              key={driver.id}
+              style={styles.listItem}
+              onPress={() => navigation.navigate('Detail', { item: driver, type: 'driver' })}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.posText}>{driver.pos}</Text>
+              <View style={styles.itemInfo}>
+                <Text style={styles.itemName}>{driver.full_name || driver.name}</Text>
+                <Text style={styles.itemSub}>{driver.team}</Text>
+              </View>
+              <Text style={styles.ptsText}>{driver.points} pts</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -255,5 +311,15 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  loaderBox: {
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loaderText: {
+    color: COLORS.textSecondary,
+    marginTop: 10,
+    fontSize: 13,
   },
 });

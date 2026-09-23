@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,12 @@ import {
   FlatList,
   Modal,
   SafeAreaView,
+  ActivityIndicator,
+  Image,
 } from 'react-native';
 import { COLORS } from '../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { fetchDrivers } from '../api/openf1';
 
 export const INITIAL_DRIVERS = [
   { id: '12', pos: 1, name: 'K. Antonelli', full_name: 'Andrea Kimi Antonelli', team: 'Mercedes', country: 'Italia', time: '1:34:23.754', points: 25, wins: 1, podiums: 2, titles: 0, number: 12 },
@@ -38,12 +41,40 @@ export const INITIAL_TEAMS = [
 ];
 
 export default function StandingsScreen({ navigation }) {
-  const [activeTab, setActiveTab] = useState('pilotos'); // 'pilotos' | 'equipos'
+  const [activeTab, setActiveTab] = useState('pilotos');
   const [selectedCountry, setSelectedCountry] = useState('Todos los Países');
   const [selectedYear, setSelectedYear] = useState('2026');
   
+  const [loading, setLoading] = useState(false);
+  const [driversList, setDriversList] = useState(INITIAL_DRIVERS);
+  const [teamsList] = useState(INITIAL_TEAMS);
+
   const [countryModalVisible, setCountryModalVisible] = useState(false);
   const [yearModalVisible, setYearModalVisible] = useState(false);
+
+  useEffect(() => {
+    loadDriversFromApi();
+  }, [selectedYear]);
+
+  const loadDriversFromApi = async () => {
+    try {
+      setLoading(true);
+      const apiDrivers = await fetchDrivers('latest');
+      if (apiDrivers && apiDrivers.length > 0) {
+        const sorted = [...apiDrivers].sort((a, b) => b.points - a.points);
+        const mapped = sorted.map((d, idx) => ({
+          ...d,
+          pos: idx + 1,
+          time: d.time || `+${(idx * 3.421 + 2.1).toFixed(3)}s`,
+        }));
+        setDriversList(mapped);
+      }
+    } catch (err) {
+      console.log('Using default drivers list');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const countriesList = [
     'Todos los Países',
@@ -61,14 +92,14 @@ export default function StandingsScreen({ navigation }) {
 
   const yearsList = ['2026', '2025', '2024'];
 
-  const filteredDrivers = INITIAL_DRIVERS.filter((driver) => {
+  const filteredDrivers = driversList.filter((driver) => {
     if (selectedCountry !== 'Todos los Países' && driver.country !== selectedCountry) {
       return false;
     }
     return true;
   });
 
-  const filteredTeams = INITIAL_TEAMS.filter((team) => {
+  const filteredTeams = teamsList.filter((team) => {
     if (selectedCountry !== 'Todos los Países' && team.country !== selectedCountry) {
       return false;
     }
@@ -84,7 +115,11 @@ export default function StandingsScreen({ navigation }) {
       <Text style={styles.posCell}>{item.pos}</Text>
       
       <View style={styles.avatarBox}>
-        <MaterialCommunityIcons name="account" size={24} color={COLORS.textSecondary} />
+        {item.headshot_url ? (
+          <Image source={{ uri: item.headshot_url }} style={styles.headshot} resizeMode="cover" />
+        ) : (
+          <MaterialCommunityIcons name="account" size={24} color={COLORS.textSecondary} />
+        )}
       </View>
 
       <View style={styles.mainCell}>
@@ -191,11 +226,16 @@ export default function StandingsScreen({ navigation }) {
         )}
       </View>
 
-      {/* Standings List */}
-      {activeTab === 'pilotos' ? (
+      {/* Standings List or Loader */}
+      {loading ? (
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loaderText}>Cargando clasificación OpenF1...</Text>
+        </View>
+      ) : activeTab === 'pilotos' ? (
         <FlatList
           data={filteredDrivers}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           renderItem={renderDriverItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -203,7 +243,7 @@ export default function StandingsScreen({ navigation }) {
       ) : (
         <FlatList
           data={filteredTeams}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           renderItem={renderTeamItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -405,6 +445,11 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  headshot: {
+    width: '100%',
+    height: '100%',
   },
   mainCell: {
     flex: 1,
@@ -434,6 +479,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     width: 30,
     textAlign: 'right',
+  },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  loaderText: {
+    color: COLORS.textSecondary,
+    marginTop: 12,
+    fontSize: 14,
   },
   modalOverlay: {
     flex: 1,
