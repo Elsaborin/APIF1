@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   FlatList,
   Modal,
-  SafeAreaView,
   ActivityIndicator,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchDrivers } from '../api/openf1';
@@ -70,7 +70,7 @@ export default function StandingsScreen({ navigation }) {
         setDriversList(mapped);
       }
     } catch (err) {
-      console.log('Using default drivers list');
+      // Fallback
     } finally {
       setLoading(false);
     }
@@ -161,9 +161,11 @@ export default function StandingsScreen({ navigation }) {
       {/* Top Header */}
       <View style={styles.header}>
         <View style={styles.logoRow}>
-          <View style={styles.f1Badge}>
-            <Text style={styles.f1Text}>F1</Text>
-          </View>
+          <Image
+            source={require('../../assets/f1_logo.png')}
+            style={styles.f1LogoHeader}
+            resizeMode="contain"
+          />
         </View>
         <Text style={styles.headerTitle}>Clasificación</Text>
       </View>
@@ -328,7 +330,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 10,
     marginBottom: 10,
   },
   logoRow: {
@@ -336,17 +338,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
-  f1Badge: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  f1Text: {
-    color: COLORS.text,
-    fontWeight: '900',
-    fontStyle: 'italic',
-    fontSize: 20,
+  f1LogoHeader: {
+    width: 70,
+    height: 30,
   },
   headerTitle: {
     color: COLORS.text,

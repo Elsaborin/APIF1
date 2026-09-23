@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FavoritesContext } from '../context/FavoritesContext';
@@ -52,9 +52,11 @@ export default function DetailScreen({ route, navigation }) {
           <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.text} />
         </TouchableOpacity>
 
-        <View style={styles.f1Badge}>
-          <Text style={styles.f1Text}>F1</Text>
-        </View>
+        <Image
+          source={require('../../assets/f1_logo.png')}
+          style={styles.f1LogoHeader}
+          resizeMode="contain"
+        />
 
         <TouchableOpacity style={styles.favHeaderBtn} onPress={handleToggleFavorite}>
           <MaterialCommunityIcons
@@ -166,23 +168,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 10,
     paddingBottom: 10,
   },
   backButton: {
     padding: 8,
   },
-  f1Badge: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  f1Text: {
-    color: COLORS.text,
-    fontWeight: '900',
-    fontStyle: 'italic',
-    fontSize: 20,
+  f1LogoHeader: {
+    width: 65,
+    height: 30,
   },
   favHeaderBtn: {
     padding: 8,

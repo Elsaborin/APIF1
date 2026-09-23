@@ -6,26 +6,25 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  SafeAreaView,
+  Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FavoritesContext } from '../context/FavoritesContext';
 import { INITIAL_DRIVERS, INITIAL_TEAMS } from './StandingsScreen';
 
 export default function FavoritesScreen({ navigation }) {
-  const [activeTab, setActiveTab] = useState('pilotos'); // 'pilotos' | 'equipos'
+  const [activeTab, setActiveTab] = useState('pilotos');
   const [searchQuery, setSearchQuery] = useState('');
   
   const {
-    favorites,
     toggleFavoriteDriver,
     toggleFavoriteTeam,
     isFavoriteDriver,
     isFavoriteTeam,
   } = useContext(FavoritesContext);
 
-  // Filter drivers based on tab and search
   const filteredDrivers = INITIAL_DRIVERS.filter((d) => {
     const matchesSearch =
       d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,7 +33,6 @@ export default function FavoritesScreen({ navigation }) {
     return matchesSearch;
   });
 
-  // Filter teams based on tab and search
   const filteredTeams = INITIAL_TEAMS.filter((t) => {
     const matchesSearch =
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,9 +112,11 @@ export default function FavoritesScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.f1Badge}>
-          <Text style={styles.f1Text}>F1</Text>
-        </View>
+        <Image
+          source={require('../../assets/f1_logo.png')}
+          style={styles.f1LogoHeader}
+          resizeMode="contain"
+        />
         <Text style={styles.headerTitle}>Favoritos</Text>
       </View>
 
@@ -165,7 +165,7 @@ export default function FavoritesScreen({ navigation }) {
       {activeTab === 'pilotos' ? (
         <FlatList
           data={filteredDrivers}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           renderItem={renderDriverCard}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -176,7 +176,7 @@ export default function FavoritesScreen({ navigation }) {
       ) : (
         <FlatList
           data={filteredTeams}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           renderItem={renderTeamCard}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -196,22 +196,13 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 10,
     marginBottom: 12,
   },
-  f1Badge: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginBottom: 6,
-  },
-  f1Text: {
-    color: COLORS.text,
-    fontWeight: '900',
-    fontStyle: 'italic',
-    fontSize: 18,
+  f1LogoHeader: {
+    width: 70,
+    height: 30,
+    marginBottom: 4,
   },
   headerTitle: {
     color: COLORS.text,

@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
 import { fetchDrivers } from '../api/openf1';
 
@@ -34,7 +36,6 @@ export default function HomeScreen({ navigation }) {
       setLoading(true);
       const apiDrivers = await fetchDrivers('latest');
       if (apiDrivers && apiDrivers.length > 0) {
-        // Sort and pick top 3
         const sorted = [...apiDrivers].sort((a, b) => b.points - a.points).slice(0, 3);
         const mapped = sorted.map((d, index) => ({
           ...d,
@@ -43,7 +44,7 @@ export default function HomeScreen({ navigation }) {
         setTopDrivers(mapped);
       }
     } catch (error) {
-      console.log('Using default top drivers fallback');
+      // Fallback to default top drivers
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -60,132 +61,136 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
-      }
-    >
-      {/* Header F1 Branding */}
-      <View style={styles.topHeader}>
-        <View style={styles.f1BrandBadge}>
-          <Text style={styles.f1BrandText}>F1</Text>
-        </View>
-        <Text style={styles.welcomeText}>Bienvenido a la F1</Text>
-      </View>
-
-      {/* Hero Title */}
-      <View style={styles.heroSection}>
-        <Text style={styles.heroTitle}>Vive la pasión{"\n"}por la velocidad.</Text>
-        <Text style={styles.heroSub}>
-          Consulta clasificaciones y los mejores destacados de la temporada
-        </Text>
-      </View>
-
-      {/* Promotional Banner Card */}
-      <View style={styles.promoCard}>
-        <View style={styles.promoContent}>
-          <Text style={styles.promoTitle}>Sigue a tus pilotos y equipos favoritos</Text>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Clasificacion')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.actionButtonText}>Ver clasificación</Text>
-          </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        }
+      >
+        {/* Header F1 Logo Image */}
+        <View style={styles.topHeader}>
+          <Image
+            source={require('../../assets/f1_logo.png')}
+            style={styles.headerLogoImage}
+            resizeMode="contain"
+          />
+          <Text style={styles.welcomeText}>Bienvenido a la F1</Text>
         </View>
 
-        <View style={styles.promoLogoBadge}>
-          <Text style={styles.promoLogoText}>F1</Text>
+        {/* Hero Title */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTitle}>Vive la pasión{"\n"}por la velocidad.</Text>
+          <Text style={styles.heroSub}>
+            Consulta clasificaciones y los mejores destacados de la temporada
+          </Text>
         </View>
-      </View>
 
-      {/* TOP Equipos Section */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>TOP Equipos</Text>
-        <Text style={styles.seasonBadge}>Temporada 2026</Text>
-      </View>
-
-      <View style={styles.listContainer}>
-        {topTeams.map((team) => (
-          <TouchableOpacity
-            key={team.id}
-            style={styles.listItem}
-            onPress={() => navigation.navigate('Detail', { item: team, type: 'team' })}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.posText}>{team.pos}</Text>
-            <View style={styles.itemInfo}>
-              <Text style={styles.itemName}>{team.name}</Text>
-              <Text style={styles.itemSub}>{team.country}</Text>
-            </View>
-            <Text style={styles.ptsText}>{team.points} pts</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* TOP Pilotos Section */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>TOP Pilotos</Text>
-        <Text style={styles.seasonBadge}>Temporada 2026</Text>
-      </View>
-
-      {loading ? (
-        <View style={styles.loaderBox}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loaderText}>Cargando datos OpenF1...</Text>
-        </View>
-      ) : (
-        <View style={styles.listContainer}>
-          {topDrivers.map((driver) => (
+        {/* Promotional Banner Card */}
+        <View style={styles.promoCard}>
+          <View style={styles.promoContent}>
+            <Text style={styles.promoTitle}>Sigue a tus pilotos y equipos favoritos</Text>
             <TouchableOpacity
-              key={driver.id}
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Clasificacion')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.actionButtonText}>Ver clasificación</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.promoLogoContainer}>
+            <Image
+              source={require('../../assets/f1_logo.png')}
+              style={styles.promoLogoImage}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+
+        {/* TOP Equipos Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>TOP Equipos</Text>
+          <Text style={styles.seasonBadge}>Temporada 2026</Text>
+        </View>
+
+        <View style={styles.listContainer}>
+          {topTeams.map((team) => (
+            <TouchableOpacity
+              key={team.id}
               style={styles.listItem}
-              onPress={() => navigation.navigate('Detail', { item: driver, type: 'driver' })}
+              onPress={() => navigation.navigate('Detail', { item: team, type: 'team' })}
               activeOpacity={0.7}
             >
-              <Text style={styles.posText}>{driver.pos}</Text>
+              <Text style={styles.posText}>{team.pos}</Text>
               <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{driver.full_name || driver.name}</Text>
-                <Text style={styles.itemSub}>{driver.team}</Text>
+                <Text style={styles.itemName}>{team.name}</Text>
+                <Text style={styles.itemSub}>{team.country}</Text>
               </View>
-              <Text style={styles.ptsText}>{driver.points} pts</Text>
+              <Text style={styles.ptsText}>{team.points} pts</Text>
             </TouchableOpacity>
           ))}
         </View>
-      )}
-    </ScrollView>
+
+        {/* TOP Pilotos Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>TOP Pilotos</Text>
+          <Text style={styles.seasonBadge}>Temporada 2026</Text>
+        </View>
+
+        {loading ? (
+          <View style={styles.loaderBox}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.loaderText}>Cargando datos OpenF1...</Text>
+          </View>
+        ) : (
+          <View style={styles.listContainer}>
+            {topDrivers.map((driver) => (
+              <TouchableOpacity
+                key={driver.id}
+                style={styles.listItem}
+                onPress={() => navigation.navigate('Detail', { item: driver, type: 'driver' })}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.posText}>{driver.pos}</Text>
+                <View style={styles.itemInfo}>
+                  <Text style={styles.itemName}>{driver.full_name || driver.name}</Text>
+                  <Text style={styles.itemSub}>{driver.team}</Text>
+                </View>
+                <Text style={styles.ptsText}>{driver.points} pts</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
   contentContainer: {
     padding: 20,
-    paddingTop: 50,
+    paddingTop: 10,
   },
   topHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    justifyContent: 'space-between',
   },
-  f1BrandBadge: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginRight: 10,
-  },
-  f1BrandText: {
-    color: COLORS.text,
-    fontWeight: '900',
-    fontStyle: 'italic',
-    fontSize: 16,
+  headerLogoImage: {
+    width: 80,
+    height: 35,
   },
   welcomeText: {
     color: COLORS.textSecondary,
@@ -243,8 +248,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  promoLogoBadge: {
-    width: 65,
+  promoLogoContainer: {
+    width: 75,
     height: 65,
     borderRadius: 12,
     backgroundColor: COLORS.surface,
@@ -252,12 +257,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,
+    padding: 5,
   },
-  promoLogoText: {
-    color: COLORS.primary,
-    fontSize: 28,
-    fontWeight: '900',
-    fontStyle: 'italic',
+  promoLogoImage: {
+    width: '90%',
+    height: '90%',
   },
   sectionHeader: {
     flexDirection: 'row',

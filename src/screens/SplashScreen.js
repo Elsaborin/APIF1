@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../theme/colors';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function SplashScreen({ navigation }) {
   const fadeAnim = new Animated.Value(0);
@@ -29,7 +29,7 @@ export default function SplashScreen({ navigation }) {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Animated.View
         style={[
           styles.content,
@@ -39,15 +39,13 @@ export default function SplashScreen({ navigation }) {
           },
         ]}
       >
-        <View style={styles.logoBadge}>
-          <Text style={styles.logoText}>F1</Text>
-        </View>
+        <Image
+          source={require('../../assets/f1_logo.png')}
+          style={styles.f1LogoImage}
+          resizeMode="contain"
+        />
         
-        <View style={styles.titleRow}>
-          <MaterialCommunityIcons name="flag-checkered" size={32} color={COLORS.primary} />
-          <Text style={styles.appTitle}>FORMULA 1</Text>
-        </View>
-        
+        <Text style={styles.appTitle}>FORMULA 1</Text>
         <Text style={styles.subtitle}>Vive la pasión por la velocidad</Text>
         
         <View style={styles.loadingIndicator}>
@@ -56,7 +54,7 @@ export default function SplashScreen({ navigation }) {
       </Animated.View>
 
       <Text style={styles.footerText}>UNIVERSIDAD TECNOLÓGICA DE CANCÚN</Text>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -71,36 +69,17 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
   },
-  logoBadge: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 28,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 24,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  logoText: {
-    color: COLORS.text,
-    fontSize: 54,
-    fontWeight: '900',
-    fontStyle: 'italic',
-    letterSpacing: -2,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 8,
+  f1LogoImage: {
+    width: 220,
+    height: 90,
+    marginBottom: 20,
   },
   appTitle: {
     color: COLORS.text,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
     letterSpacing: 4,
+    marginBottom: 6,
   },
   subtitle: {
     color: COLORS.textSecondary,
@@ -109,7 +88,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   loadingIndicator: {
-    width: 120,
+    width: 140,
     height: 4,
     backgroundColor: COLORS.surfaceCard,
     borderRadius: 2,

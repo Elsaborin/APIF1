@@ -14,21 +14,25 @@ export function FavoritesProvider({ children }) {
 
   const loadFavorites = async () => {
     try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setFavorites(JSON.parse(stored));
+      if (AsyncStorage && typeof AsyncStorage.getItem === 'function') {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          setFavorites(JSON.parse(stored));
+        }
       }
     } catch (e) {
-      console.error('Failed to load favorites', e);
+      // Graceful fallback to memory state if AsyncStorage native module is unavailable in Expo Go
     }
   };
 
   const saveFavorites = async (newFavs) => {
+    setFavorites(newFavs);
     try {
-      setFavorites(newFavs);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newFavs));
+      if (AsyncStorage && typeof AsyncStorage.setItem === 'function') {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newFavs));
+      }
     } catch (e) {
-      console.error('Failed to save favorites', e);
+      // Graceful fallback
     }
   };
 
