@@ -15,16 +15,16 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchDrivers } from '../api/openf1';
 
 export const INITIAL_DRIVERS = [
-  { id: '12', pos: 1, name: 'K. Antonelli', full_name: 'Andrea Kimi Antonelli', team: 'Mercedes', country: 'Italia', time: '1:34:23.754', points: 25, wins: 1, podiums: 2, titles: 0, number: 12 },
-  { id: '1', pos: 2, name: 'Max Verstappen', full_name: 'Max Verstappen', team: 'Red Bull Racing', country: 'Países Bajos', time: '+4.351s', points: 18, wins: 19, podiums: 21, titles: 3, number: 1 },
-  { id: '4', pos: 3, name: 'L. Norris', full_name: 'Lando Norris', team: 'McLaren', country: 'Reino Unido', time: '+5.089s', points: 15, wins: 3, podiums: 12, titles: 0, number: 4 },
-  { id: '16', pos: 4, name: 'C. Leclerc', full_name: 'Charles Leclerc', team: 'Ferrari', country: 'Mónaco', time: '+29.116s', points: 12, wins: 3, podiums: 11, titles: 0, number: 16 },
-  { id: '63', pos: 5, name: 'G. Russell', full_name: 'George Russell', team: 'Mercedes', country: 'Reino Unido', time: '+29.829s', points: 10, wins: 2, podiums: 8, titles: 0, number: 63 },
-  { id: '30', pos: 6, name: 'L. Lawson', full_name: 'Liam Lawson', team: 'Red Bull Racing', country: 'Nueva Zelanda', time: '+86.746s', points: 8, wins: 0, podiums: 1, titles: 0, number: 30 },
-  { id: '43', pos: 7, name: 'F. Colapinto', full_name: 'Franco Colapinto', team: 'McLaren', country: 'Argentina', time: '+94.281s', points: 6, wins: 0, podiums: 1, titles: 0, number: 43 },
-  { id: '14', pos: 8, name: 'F. Alonso', full_name: 'Fernando Alonso', team: 'Aston Martin', country: 'España', time: '+1:02.112s', points: 4, wins: 32, podiums: 106, titles: 2, number: 14 },
-  { id: '55', pos: 9, name: 'C. Sainz', full_name: 'Carlos Sainz', team: 'Williams', country: 'España', time: '+1:10.500s', points: 2, wins: 4, podiums: 25, titles: 0, number: 55 },
-  { id: '11', pos: 10, name: 'S. Perez', full_name: 'Sergio Perez', team: 'Cadillac', country: 'México', time: '+1:15.300s', points: 1, wins: 6, podiums: 39, titles: 0, number: 11 },
+  { id: '1', pos: 1, name: 'Max Verstappen', full_name: 'Max Verstappen', team: 'Red Bull Racing', country: 'Países Bajos', country_code: 'NED', time: '1:34:23.754', points: 437, wins: 19, podiums: 21, titles: 3, number: 1, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/2col/image.png' },
+  { id: '4', pos: 2, name: 'Lando Norris', full_name: 'Lando Norris', team: 'McLaren', country: 'Reino Unido', country_code: 'GBR', time: '+4.351s', points: 374, wins: 3, podiums: 12, titles: 0, number: 4, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/2col/image.png' },
+  { id: '16', pos: 3, name: 'Charles Leclerc', full_name: 'Charles Leclerc', team: 'Ferrari', country: 'Mónaco', country_code: 'MON', time: '+5.089s', points: 356, wins: 3, podiums: 11, titles: 0, number: 16, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/2col/image.png' },
+  { id: '63', pos: 4, name: 'George Russell', full_name: 'George Russell', team: 'Mercedes', country: 'Reino Unido', country_code: 'GBR', time: '+29.116s', points: 298, wins: 2, podiums: 8, titles: 0, number: 63, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png.transform/2col/image.png' },
+  { id: '12', pos: 5, name: 'K. Antonelli', full_name: 'Andrea Kimi Antonelli', team: 'Mercedes', country: 'Italia', country_code: 'ITA', time: '+29.829s', points: 245, wins: 1, podiums: 2, titles: 0, number: 12, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KIMANT01_Kimi_Antonelli/kimant01.png.transform/2col/image.png' },
+  { id: '14', pos: 6, name: 'Fernando Alonso', full_name: 'Fernando Alonso', team: 'Aston Martin', country: 'España', country_code: 'ESP', time: '+45.112s', points: 190, wins: 32, podiums: 106, titles: 2, number: 14, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/2col/image.png' },
+  { id: '55', pos: 7, name: 'Carlos Sainz', full_name: 'Carlos Sainz', team: 'Williams', country: 'España', country_code: 'ESP', time: '+50.500s', points: 175, wins: 4, podiums: 25, titles: 0, number: 55, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/2col/image.png' },
+  { id: '43', pos: 8, name: 'Franco Colapinto', full_name: 'Franco Colapinto', team: 'McLaren', country: 'Argentina', country_code: 'ARG', time: '+64.281s', points: 110, wins: 0, podiums: 1, titles: 0, number: 43, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png.transform/2col/image.png' },
+  { id: '11', pos: 9, name: 'Sergio Perez', full_name: 'Sergio Perez', team: 'Cadillac', country: 'México', country_code: 'MEX', time: '+75.300s', points: 95, wins: 6, podiums: 39, titles: 0, number: 11, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png' },
+  { id: '30', pos: 10, name: 'Liam Lawson', full_name: 'Liam Lawson', team: 'Red Bull Racing', country: 'Nueva Zelanda', country_code: 'NZL', time: '+86.746s', points: 80, wins: 0, podiums: 1, titles: 0, number: 30, headshot_url: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/2col/image.png' },
 ];
 
 export const INITIAL_TEAMS = [
@@ -61,7 +61,20 @@ export default function StandingsScreen({ navigation }) {
       setLoading(true);
       const apiDrivers = await fetchDrivers('latest');
       if (apiDrivers && apiDrivers.length > 0) {
-        const sorted = [...apiDrivers].sort((a, b) => b.points - a.points);
+        // Merge OpenF1 drivers with fallback data if missing items
+        const mergedMap = new Map();
+        INITIAL_DRIVERS.forEach(d => mergedMap.set(d.id, d));
+        apiDrivers.forEach(d => {
+          const existing = mergedMap.get(d.id);
+          mergedMap.set(d.id, {
+            ...existing,
+            ...d,
+            headshot_url: d.headshot_url || existing?.headshot_url || null,
+          });
+        });
+
+        const listArray = Array.from(mergedMap.values());
+        const sorted = listArray.sort((a, b) => b.points - a.points);
         const mapped = sorted.map((d, idx) => ({
           ...d,
           pos: idx + 1,
@@ -70,7 +83,7 @@ export default function StandingsScreen({ navigation }) {
         setDriversList(mapped);
       }
     } catch (err) {
-      // Fallback
+      // Keep initial drivers list
     } finally {
       setLoading(false);
     }
@@ -78,33 +91,69 @@ export default function StandingsScreen({ navigation }) {
 
   const countriesList = [
     'Todos los Países',
+    'Mónaco',
     'España',
     'Reino Unido',
     'Países Bajos',
     'Italia',
-    'Mónaco',
-    'Alemania',
     'Argentina',
     'México',
     'Francia',
+    'Alemania',
     'Estados Unidos',
   ];
 
   const yearsList = ['2026', '2025', '2024'];
 
-  const filteredDrivers = driversList.filter((driver) => {
-    if (selectedCountry !== 'Todos los Países' && driver.country !== selectedCountry) {
-      return false;
-    }
-    return true;
-  });
+  const matchesCountryFilter = (itemCountry, itemCode, target) => {
+    if (target === 'Todos los Países') return true;
+    if (!itemCountry && !itemCode) return false;
 
-  const filteredTeams = teamsList.filter((team) => {
-    if (selectedCountry !== 'Todos los Países' && team.country !== selectedCountry) {
-      return false;
+    const t = target.toLowerCase();
+    const c = (itemCountry || '').toLowerCase();
+    const code = (itemCode || '').toLowerCase();
+
+    if (t === 'mónaco' || t === 'monaco') {
+      return c.includes('mónaco') || c.includes('monaco') || code === 'mon' || code === 'mc' || code === 'mco';
     }
-    return true;
-  });
+    if (t === 'españa' || t === 'espana') {
+      return c.includes('españa') || c.includes('espana') || code === 'esp' || code === 'es';
+    }
+    if (t === 'reino unido') {
+      return c.includes('reino unido') || c.includes('uk') || code === 'gbr' || code === 'uk';
+    }
+    if (t === 'países bajos' || t === 'paises bajos') {
+      return c.includes('países bajos') || c.includes('paises bajos') || c.includes('netherlands') || code === 'ned' || code === 'nld' || code === 'nl';
+    }
+    if (t === 'italia') {
+      return c.includes('italia') || c.includes('italy') || code === 'ita' || code === 'it';
+    }
+    if (t === 'argentina') {
+      return c.includes('argentina') || code === 'arg' || code === 'ar';
+    }
+    if (t === 'méxico' || t === 'mexico') {
+      return c.includes('méxico') || c.includes('mexico') || code === 'mex' || code === 'mx';
+    }
+    if (t === 'francia') {
+      return c.includes('francia') || c.includes('france') || code === 'fra' || code === 'fr';
+    }
+    if (t === 'alemania') {
+      return c.includes('alemania') || c.includes('germany') || code === 'ger' || code === 'de';
+    }
+    if (t === 'estados unidos') {
+      return c.includes('estados unidos') || c.includes('usa') || code === 'usa' || code === 'us';
+    }
+
+    return c.includes(t) || code.includes(t);
+  };
+
+  const filteredDrivers = driversList.filter((driver) =>
+    matchesCountryFilter(driver.country, driver.country_code, selectedCountry)
+  );
+
+  const filteredTeams = teamsList.filter((team) =>
+    matchesCountryFilter(team.country, team.country_code, selectedCountry)
+  );
 
   const renderDriverItem = ({ item }) => (
     <TouchableOpacity
@@ -116,7 +165,7 @@ export default function StandingsScreen({ navigation }) {
       
       <View style={styles.avatarBox}>
         {item.headshot_url ? (
-          <Image source={{ uri: item.headshot_url }} style={styles.headshot} resizeMode="cover" />
+          <Image source={{ uri: item.headshot_url }} style={styles.headshot} resizeMode="contain" />
         ) : (
           <MaterialCommunityIcons name="account" size={24} color={COLORS.textSecondary} />
         )}
@@ -241,6 +290,12 @@ export default function StandingsScreen({ navigation }) {
           renderItem={renderDriverItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons name="account-search-outline" size={48} color={COLORS.textSecondary} />
+              <Text style={styles.emptyText}>No hay pilotos registrados para {selectedCountry}.</Text>
+            </View>
+          }
         />
       ) : (
         <FlatList
@@ -249,6 +304,12 @@ export default function StandingsScreen({ navigation }) {
           renderItem={renderTeamItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons name="shield-search" size={48} color={COLORS.textSecondary} />
+              <Text style={styles.emptyText}>No hay equipos registrados para {selectedCountry}.</Text>
+            </View>
+          }
         />
       )}
 
@@ -430,9 +491,9 @@ const styles = StyleSheet.create({
     width: 25,
   },
   avatarBox: {
-    width: 38,
-    height: 38,
-    borderRadius: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: COLORS.surfaceCard,
     justifyContent: 'center',
     alignItems: 'center',
@@ -484,6 +545,17 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 12,
     fontSize: 14,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 50,
+  },
+  emptyText: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    marginTop: 12,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
