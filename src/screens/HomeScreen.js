@@ -19,12 +19,12 @@ export default function HomeScreen({ navigation }) {
   const [topDrivers, setTopDrivers] = useState([]);
   const [topTeams, setTopTeams] = useState([]);
 
-  const loadApiData = async () => {
+  const loadApiData = async (forceRefresh = false) => {
     try {
       setLoading(true);
       const [apiDrivers, apiTeams] = await Promise.all([
-        fetchDrivers('latest'),
-        fetchTeams('latest'),
+        fetchDrivers('latest', forceRefresh),
+        fetchTeams('latest', forceRefresh),
       ]);
 
       if (apiDrivers && apiDrivers.length > 0) {
@@ -46,7 +46,7 @@ export default function HomeScreen({ navigation }) {
         setTopTeams(fallbackTeams.slice(0, 3));
       }
     } catch (error) {
-      console.warn('Error fetching OpenF1 data for Home:', error.message);
+      // Silent graceful fallback
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -59,7 +59,7 @@ export default function HomeScreen({ navigation }) {
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadApiData();
+    loadApiData(true);
   };
 
   return (
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     height: 65,
     borderRadius: 12,
     backgroundColor: COLORS.surface,
-    justify.content: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,

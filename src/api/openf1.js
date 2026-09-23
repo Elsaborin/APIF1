@@ -61,14 +61,26 @@ const COUNTRY_MAP = {
   87: { country: 'Reino Unido', code: 'GBR' },
 };
 
+// In-Memory Cache to prevent HTTP 429 Rate Limiting
+let cachedDrivers = null;
+let cachedTeams = null;
+let lastDriversFetchTime = 0;
+let lastTeamsFetchTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache
+
 /**
- * Fetch 100% real driver standings from OpenF1 API, filtering out non-grid reserve drivers
+ * Fetch 100% real driver standings from OpenF1 API with rate-limit protection and caching
  */
-export const fetchDrivers = async (sessionKey = 'latest') => {
+export const fetchDrivers = async (sessionKey = 'latest', forceRefresh = false) => {
+  const now = Date.now();
+  if (!forceRefresh && cachedDrivers && now - lastDriversFetchTime < CACHE_TTL) {
+    return cachedDrivers;
+  }
+
   try {
     const [champRes, driversRes] = await Promise.all([
-      api.get('/championship_drivers', { params: { session_key: sessionKey } }),
-      api.get('/drivers', { params: { session_key: sessionKey } }),
+      api.get('/championship_drivers', { params: { session_key: sessionKey } }).catch(() => ({ data: [] })),
+      api.get('/drivers', { params: { session_key: sessionKey } }).catch(() => ({ data: [] })),
     ]);
 
     const champData = Array.isArray(champRes.data) ? champRes.data : [];
@@ -87,7 +99,6 @@ export const fetchDrivers = async (sessionKey = 'latest') => {
 
     champData.forEach((c) => {
       const num = Number(c.driver_number);
-      // Exclude unknown/test entries like #6 and restrict to grid drivers
       if (num && VALID_GRID_NUMBERS.has(num) && !processedNumbers.has(num)) {
         processedNumbers.add(num);
 
@@ -116,54 +127,35 @@ export const fetchDrivers = async (sessionKey = 'latest') => {
       }
     });
 
-    // Fallback if championship_drivers returns empty
-    if (driversList.length === 0) {
-      driversData.forEach((d) => {
-        const num = Number(d.driver_number);
-        if (num && VALID_GRID_NUMBERS.has(num) && !processedNumbers.has(num)) {
-          processedNumbers.add(num);
-          const knownName = DRIVER_NAMES_MAP[num];
-          const fullName = knownName || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim();
-          const countryInfo = COUNTRY_MAP[num] || { country: d.country_code || 'F1', code: d.country_code || '' };
-
-          driversList.push({
-            id: String(num),
-            number: num,
-            name: d.name_acronym || d.last_name || fullName,
-            full_name: fullName,
-            team: d.team_name || 'Fórmula 1',
-            country: countryInfo.country,
-            country_code: countryInfo.code,
-            headshot_url: d.headshot_url || null,
-            team_colour: d.team_colour ? `#${d.team_colour}` : null,
-            points: 0,
-            pos: driversList.length + 1,
-            points_start: 0,
-            position_start: 0,
-            meeting_key: d.meeting_key || null,
-            session_key: d.session_key || null,
-          });
-        }
-      });
+    if (driversList.length > 0) {
+      cachedDrivers = driversList.sort((a, b) => a.pos - b.pos);
+      lastDriversFetchTime = now;
+      return cachedDrivers;
     }
 
-    return driversList.sort((a, b) => a.pos - b.pos);
+    if (cachedDrivers) return cachedDrivers;
+    return [];
   } catch (error) {
-    console.warn('OpenF1 API fetchDrivers error:', error.message);
-    throw error;
+    if (cachedDrivers) return cachedDrivers;
+    return [];
   }
 };
 
 /**
- * Fetch 100% real team standings directly from OpenF1 /championship_teams endpoint
+ * Fetch 100% real team standings directly from OpenF1 /championship_teams endpoint with caching
  */
-export const fetchTeams = async (sessionKey = 'latest') => {
+export const fetchTeams = async (sessionKey = 'latest', forceRefresh = false) => {
+  const now = Date.now();
+  if (!forceRefresh && cachedTeams && now - lastTeamsFetchTime < CACHE_TTL) {
+    return cachedTeams;
+  }
+
   try {
     const response = await api.get('/championship_teams', {
       params: { session_key: sessionKey },
-    });
+    }).catch(() => ({ data: [] }));
 
-    if (response.data && Array.isArray(response.data)) {
+    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
       const processedTeams = new Set();
       const teamsList = [];
 
@@ -186,18 +178,19 @@ export const fetchTeams = async (sessionKey = 'latest') => {
         }
       });
 
-      return teamsList.sort((a, b) => a.pos - b.pos);
+      cachedTeams = teamsList.sort((a, b) => a.pos - b.pos);
+      lastTeamsFetchTime = now;
+      return cachedTeams;
     }
+
+    if (cachedTeams) return cachedTeams;
     return [];
   } catch (error) {
-    console.warn('OpenF1 API fetchTeams error:', error.message);
+    if (cachedTeams) return cachedTeams;
     return [];
   }
 };
 
-/**
- * Helper to compute team standings from drivers array if needed
- */
 export const fetchTeamsFromDrivers = (drivers) => {
   if (!drivers || !Array.isArray(drivers)) return [];
   const teamMap = new Map();
